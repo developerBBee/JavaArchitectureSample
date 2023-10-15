@@ -26,10 +26,11 @@ import jp.developer.bbee.javamvvmdemo.presentation.artist.adapter.ArtistAdapter;
 
 public class ArtistItemsFragment extends Fragment {
     private ArtistViewModel viewModel;
-    private ArtistAdapter adapter;
-    private List<Artist> artists;
     private Button okButton;
 
+    public ArtistItemsFragment() {
+        // Required empty public constructor
+    }
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,8 +48,7 @@ public class ArtistItemsFragment extends Fragment {
 
         ArtistActivity activity = (ArtistActivity) requireActivity();
         viewModel = activity.getViewModel();
-        artists = viewModel.artists.getValue();
-        adapter = new ArtistAdapter(artists);
+        ArtistAdapter adapter = new ArtistAdapter(viewModel);
         adapter.setCheckBoxClickListener(viewModel.listener);
 
         RecyclerView recyclerView = view.findViewById(R.id.recyclerView);
@@ -63,7 +63,12 @@ public class ArtistItemsFragment extends Fragment {
             Toast.makeText(activity, "OK", Toast.LENGTH_SHORT).show();
         });
 
-        viewModel.checkedCount.observe(activity, count -> {
+        viewModel.checkedCount.observe(getViewLifecycleOwner(), count -> {
+            List<Artist> artists = viewModel.artists.getValue();
+            if (artists == null) {
+                throw new IllegalStateException("artists is null.");
+            }
+
             TextView itemCounter = view.findViewById(R.id.itemCounter);
             String text = String.format(Locale.getDefault(), "%d / %d", count, artists.size());
             itemCounter.setText(text);

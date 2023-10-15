@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 
 import jp.developer.bbee.javamvvmdemo.BuildConfig;
 import jp.developer.bbee.javamvvmdemo.R;
@@ -56,9 +57,12 @@ public class ArtistActivity extends AppCompatActivity {
         ArtistViewModelFactory factory = new ArtistViewModelFactory(getArtists, updateArtists);
         ViewModelProvider viewModelProvider = new ViewModelProvider(this, factory);
         viewModel = viewModelProvider.get(ArtistViewModel.class);
+        Log.d("ArtistActivity", "viewModel: " + viewModel);
 
-        ArtistTopFragment fragment = new ArtistTopFragment();
-        transactionFragment(fragment, false);
+        if (viewModel.getCurrentFragment() == null) {
+            ArtistTopFragment fragment = new ArtistTopFragment();
+            transactionFragment(fragment, false);
+        }
     }
 
     public void transactionFragment(Fragment fragment, boolean addStack) {
@@ -69,6 +73,7 @@ public class ArtistActivity extends AppCompatActivity {
             transaction.addToBackStack(null);
         }
         transaction.commit();
+        viewModel.setCurrentFragment(fragment);
     }
 
     @Override

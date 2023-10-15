@@ -4,6 +4,8 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
+import androidx.annotation.WorkerThread;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
@@ -12,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import java.util.List;
+import java.util.Objects;
 
 import jp.developer.bbee.javamvvmdemo.R;
 import jp.developer.bbee.javamvvmdemo.data.model.artist.Artist;
@@ -21,9 +24,8 @@ import jp.developer.bbee.javamvvmdemo.presentation.artist.ArtistViewModel;
 public class ArtistTopFragment extends Fragment {
     private ArtistViewModel viewModel;
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public ArtistTopFragment() {
+        // Required empty public constructor
     }
 
     @Override
@@ -40,7 +42,7 @@ public class ArtistTopFragment extends Fragment {
         viewModel = activity.getViewModel();
         viewModel.reset();
 
-        viewModel.artists.observe(activity, artists -> {
+        viewModel.artists.observe(getViewLifecycleOwner(), artists -> {
             if (artists == null || artists.isEmpty()) {
                 if (!activity.isDestroyed()) {
                     Toast.makeText(activity, "Error", Toast.LENGTH_SHORT).show();

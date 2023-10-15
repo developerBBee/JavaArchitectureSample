@@ -5,12 +5,12 @@ plugins {
 
 android {
     namespace 'jp.developer.bbee.javamvvmdemo'
-    compileSdk 33
+    compileSdk 34
 
     defaultConfig {
         applicationId "jp.developer.bbee.javamvvmdemo"
         minSdk 21
-        targetSdk 33
+        targetSdk 34
         versionCode 1
         versionName "1.0"
 
@@ -34,6 +34,8 @@ android {
 }
 
 dependencies {
+    implementation 'androidx.navigation:navigation-fragment:2.7.4'
+    implementation 'androidx.navigation:navigation-ui:2.7.4'
     def lifecycle_version = "2.2.0"
     def arch_version = "2.1.0"
     def room_version = "2.5.0"

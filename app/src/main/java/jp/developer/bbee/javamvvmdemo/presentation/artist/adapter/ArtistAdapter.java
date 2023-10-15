@@ -9,20 +9,18 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import jp.developer.bbee.javamvvmdemo.R;
 import jp.developer.bbee.javamvvmdemo.data.model.artist.Artist;
+import jp.developer.bbee.javamvvmdemo.presentation.artist.ArtistViewModel;
 
 public class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.ArtistViewHolder> {
-    private final List<Artist> artists;
-    private final Map<Integer, Boolean> checkedMap = new HashMap<>();
+    private final ArtistViewModel vm;
 
-    public ArtistAdapter(List<Artist> artists) {
-        this.artists = artists;
+    public ArtistAdapter(ArtistViewModel viewModel) {
+        this.vm = viewModel;
     }
 
     @NonNull
@@ -40,6 +38,11 @@ public class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.ArtistView
 
     @Override
     public void onBindViewHolder(@NonNull ArtistViewHolder holder, int position) {
+        List<Artist> artists = vm.artists.getValue();
+        if (artists == null) {
+            throw new IllegalStateException("artists is null.");
+        }
+
         Artist artist = artists.get(position);
 
         holder.itemTitle.setText(artist.name);
@@ -47,22 +50,26 @@ public class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.ArtistView
         String price = String.format(Locale.getDefault(), "%,d 円", artist.id);
         holder.itemPrice.setText(price);
 
-        Boolean checked = checkedMap.get(position);
+        Boolean checked = vm.checkedMap.get(position);
         if (checked == null) {
-            checkedMap.put(position, false);
+            vm.checkedMap.put(position, false);
             checked = false;
         }
         holder.checkBox.setChecked(checked);
 
         holder.checkBox.setOnClickListener(v -> {
             boolean isChecked = ((CheckBox) v).isChecked();
-            checkedMap.put(position, isChecked);
+            vm.checkedMap.put(position, isChecked);
             listener.onClick(v);
         });
     }
 
     @Override
     public int getItemCount() {
+        List<Artist> artists = vm.artists.getValue();
+        if (artists == null) {
+            throw new IllegalStateException("artists is null.");
+        }
         return artists.size();
     }
 

@@ -7,11 +7,14 @@ import android.widget.CheckBox;
 import androidx.annotation.NonNull;
 import androidx.annotation.UiThread;
 import androidx.annotation.WorkerThread;
+import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import jp.developer.bbee.javamvvmdemo.data.model.artist.Artist;
 import jp.developer.bbee.javamvvmdemo.data.model.artist.ArtistList;
@@ -22,20 +25,29 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class ArtistViewModel extends ViewModel {
+    private Fragment currentFragment;
+    public Fragment getCurrentFragment() {
+        return currentFragment;
+    }
+    public void setCurrentFragment(Fragment fragment) {
+        this.currentFragment = fragment;
+    }
+
     final private GetArtistsUseCase getArtists;
     final private UpdateArtistsUseCase updateArtists;
     private final MutableLiveData<List<Artist>> artistsLiveData = new MutableLiveData<>();
     public LiveData<List<Artist>> artists = artistsLiveData;
 
+    final public Map<Integer, Boolean> checkedMap = new HashMap<>();
     private final MutableLiveData<Integer> checkedCountLiveData = new MutableLiveData<>(0);
     public LiveData<Integer> checkedCount = checkedCountLiveData;
     final public View.OnClickListener listener = v -> {
         int count = checkedCount.getValue() == null ? 0 : checkedCount.getValue();
         boolean isChecked = ((CheckBox) v).isChecked();
         if (isChecked) {
-            checkedCountLiveData.setValue(count + 1);
+            setCheckedCountLiveData(count + 1);
         } else {
-            checkedCountLiveData.setValue(count - 1);
+            setCheckedCountLiveData(count - 1);
         }
     };
 
@@ -72,11 +84,19 @@ public class ArtistViewModel extends ViewModel {
         artistsLiveData.setValue(artists);
     }
 
-    public void setArtists(List<Artist> artists) {
+    public void saveArtists(List<Artist> artists) {
         updateArtists.execute(artists);
     }
 
+    @UiThread
+    public void setCheckedCountLiveData(int count) {
+        checkedCountLiveData.setValue(count);
+    }
+
+    @UiThread
     public void reset() {
         setArtistsLiveData(null);
+        setCheckedCountLiveData(0);
+        checkedMap.clear();
     }
 }
