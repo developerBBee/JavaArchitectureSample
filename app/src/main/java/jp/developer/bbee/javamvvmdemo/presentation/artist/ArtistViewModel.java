@@ -20,6 +20,7 @@ import jp.developer.bbee.javamvvmdemo.data.model.artist.Artist;
 import jp.developer.bbee.javamvvmdemo.data.model.artist.ArtistList;
 import jp.developer.bbee.javamvvmdemo.domain.usecase.GetArtistsUseCase;
 import jp.developer.bbee.javamvvmdemo.domain.usecase.UpdateArtistsUseCase;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -51,20 +52,29 @@ public class ArtistViewModel extends ViewModel {
         }
     };
 
+    private final MutableLiveData<String> errorMessageLiveData = new MutableLiveData<>("");
+    public final LiveData<String> errorMessage = errorMessageLiveData;
+
     final private Callback<ArtistList> callback = new Callback<ArtistList>() {
         @Override
         public void onResponse(@NonNull Call<ArtistList> call, Response<ArtistList> response) {
             ArtistList body = response.body();
-            if (response.isSuccessful() && body != null) {
-                List<Artist> artists = body.artists;
-                setArtistsLiveData(artists);
+            try (ResponseBody errorBody = response.errorBody()) {
+                if (response.isSuccessful() && body != null) {
+                    List<Artist> artists = body.artists;
+                    setArtistsLiveData(artists);
+                } else if (errorBody != null){
+                    errorMessageLiveData.postValue("getArtists() response error");
+                }
+            } catch (Exception e) {
+                // do nothing
             }
         }
 
         @Override
         public void onFailure(@NonNull Call<ArtistList> call, Throwable t) {
             if (t.getMessage() != null) {
-                Log.i("MyTag", t.getMessage());
+                errorMessageLiveData.postValue(t.getMessage());
             }
         }
     };

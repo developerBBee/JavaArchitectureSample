@@ -1,8 +1,14 @@
 package jp.developer.bbee.javamvvmdemo.presentation.artist.adapter;
 
+import android.app.Activity;
+import android.os.Build;
+import android.os.SystemClock;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
@@ -43,6 +49,17 @@ public class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.ArtistView
             throw new IllegalStateException("artists is null.");
         }
 
+        long downTime = SystemClock.uptimeMillis();
+        long eventTime = SystemClock.uptimeMillis();
+        int x = holder.container.getWidth() * 3 / 4;
+        int y = holder.container.getHeight() / 2;
+        MotionEvent down = MotionEvent.obtain(downTime, eventTime, MotionEvent.ACTION_DOWN, x, y, 0);
+        holder.container.onTouchEvent(down);
+        down.recycle();
+        MotionEvent up = MotionEvent.obtain(downTime, eventTime, MotionEvent.ACTION_UP, x, y, 0);
+        holder.container.onTouchEvent(up);
+        up.recycle();
+
         Artist artist = artists.get(position);
 
         holder.itemTitle.setText(artist.name);
@@ -74,6 +91,7 @@ public class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.ArtistView
     }
 
     public static class ArtistViewHolder extends RecyclerView.ViewHolder {
+        View container;
         TextView itemTitle;
         TextView itemPrice;
         CheckBox checkBox;
@@ -81,6 +99,7 @@ public class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.ArtistView
         public ArtistViewHolder(@NonNull View itemView) {
             super(itemView);
 
+            container = itemView.findViewById(R.id.container);
             itemTitle = itemView.findViewById(R.id.itemTitle);
             itemPrice = itemView.findViewById(R.id.itemPrice);
             checkBox = itemView.findViewById(R.id.checkbox);
